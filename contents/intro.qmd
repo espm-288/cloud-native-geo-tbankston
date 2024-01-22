@@ -50,11 +50,17 @@ odc.stac.configure_rio(cloud_defaults=True, client=client)
 ## Data discovery
 
 <!--
-Large geospatial data comes in many different formats and is frequently divided into many individual files or "assets" which may represent different points in space, time, sensor bands or variables. Many users are familiar with file-based workflows, where each file type is read into the computational environment by a specific tool and that workflows proceed file-by-file. However, the same data can be represented in many different formats (ncdf or tiff, say) and subdivided in different ways. Importantly, the file-based-divisions often do not reflect the way a user might want to work with the data.  For instance, a NASA ncdf product may provide sea-surface-temperature as one file per day, with each file covering the entire global extent, while a user wants to examine trends in the data over time but only in a certain regional area. In such cases, it is inefficient to download data for the whole globe over many files.  Just as end-users in high level languages are not expected to manage very low-level concepts like memory block sizes, geospatial data scientists need not worry about these file serialization details when they have good high-level abstractions that can do it for them.  
+Large geospatial data comes in many different formats and is frequently divided into many individual files or "assets" which may represent different points in space, time, sensor bands or variables. Many users are familiar with file-based workflows, where each file type is read into the computational environment by a specific tool and that workflows proceed file-by-file. However, the same data can be 
+represented in many different formats (ncdf or tiff, say) and subdivided in different ways. Importantly, the file-based-divisions often do not reflect the way a user might want to work with the data. 
+ For instance, a NASA ncdf product may provide sea-surface-temperature as one file per day, with each file covering the entire global extent, 
+ while a user wants to examine trends in the data over time but only in a certain regional area. In such cases, it is inefficient to download data for the whole globe over many files.  
+ Just as end-users in high level languages are not expected to manage very low-level concepts like memory block sizes, geospatial data scientists need not worry about these file serialization details when they have good high-level abstractions that can do it for them.  
 -->
 
-The first step in many workflows involves discovering individual spatial data files covering the space, time, and variables of interest. Here we use a [STAC](https://stacspec.org/en) Catalog API to recover a list of candidate data. 
-We dig deeper into how this works and what it returns in later recipes. This example searches for images in a lon-lat bounding box from a collection of Cloud-Optimized-GeoTIFF (COG) images taken by Sentinel2 satellite mission.
+The first step in many workflows involves discovering individual spatial data files covering the space, time, and variables of interest.
+ Here we use a [STAC](https://stacspec.org/en) Catalog API to recover a list of candidate data. 
+We dig deeper into how this works and what it returns in later recipes. 
+This example searches for images in a lon-lat bounding box from a collection of Cloud-Optimized-GeoTIFF (COG) images taken by Sentinel2 satellite mission.
 This function will not download any imagery, it merely gives us a list of metadata about available images, including the access URLs.
 
 
