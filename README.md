@@ -1,9 +1,4 @@
-# Examining Environmental Justice through Open Source, Cloud-Native Tools
 
-<img align="right" src="https://zenodo.org/record/7742997/files/Tops_Badge_Nasa.png" width="150" alt="Transform to Open Science Logo that shows a top as a rocket taking off and the text Transform to Open Science in the white vapor plume around the launch site">
-
-[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
-[![Docker Image :whale2:](https://github.com/boettiger-lab/nasa-topst-env-justice/actions/workflows/docker-image.yml/badge.svg)](https://github.com/boettiger-lab/nasa-topst-env-justice/actions/workflows/docker-image.yml)
 
 This is the development repository of educational training materials we are building as part of the [NASA TOPS-T](https://nspires.nasaprs.com/external/solicitations/summary.do?solId=%7BAB776446-03A8-4C24-845D-2E5A2ADA2D5A%7D&path=&method=init) program. A copy of the funded grant proposal to NASA describing this project can be found on Zenodo under [DOI:10.5281/zenodo.8240012](https://doi.org/10.5281/zenodo.8240012). This was one of [16 successfully funded proposals](https://nspires.nasaprs.com/external/viewrepositorydocument/cmdocumentid=929821/solicitationId=%7BAB776446-03A8-4C24-845D-2E5A2ADA2D5A%7D/viewSolicitationDocument=1/TOPST22%20selections.pdf) under the program.  
 
