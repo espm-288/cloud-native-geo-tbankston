@@ -58,11 +58,7 @@ represented in many different formats (ncdf or tiff, say) and subdivided in diff
 -->
 
 The first step in many workflows involves discovering individual spatial data files covering the space, time, and variables of interest.
- Here we use a [STAC](https://stacspec.org/en) Catalog API to recover a list of candidate data. 
-We dig deeper into how this works and what it returns in later recipes. 
-This example searches for images in a lon-lat bounding box from a collection of Cloud-Optimized-GeoTIFF (COG) images taken by Sentinel2 satellite mission.
-This function will not download any imagery, it merely gives us a list of metadata about available images, including the access URLs.
-
+\
 
 ::: {.panel-tabset}
 
