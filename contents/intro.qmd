@@ -25,22 +25,9 @@ library(tmap)
 library(dplyr)
 gdalcubes::gdalcubes_options(parallel = TRUE)
 ```
-
-## Python
-
-```{python}
-import odc.stac
-import rioxarray
-from pystac_client import Client
-import geopandas as gpd
-from rasterstats import zonal_stats 
+##text explanation of code 
 ```      
 
-```{python}
-import dask.distributed
-client = dask.distributed.Client()
-odc.stac.configure_rio(cloud_defaults=True, client=client)
-```
 
 
 :::
@@ -84,22 +71,7 @@ items <-
   post_request()
 ```
 
-## Python
 
-```{python}
-box = [-122.51, 37.71, -122.36, 37.81]
-items = (
-  Client.
-  open("https://earth-search.aws.element84.com/v1").
-  search(
-    collections = ['sentinel-2-l2a'],
-    bbox = box,
-    datetime = "2022-06-01/2022-08-01",
-    query={"eo:cloud_cover": {"lt": 20}}).
-  item_collection()
-)
-
-```
 
 :::
 
@@ -130,18 +102,6 @@ mask <- image_mask("SCL", values=c(3, 8, 9)) # mask clouds and cloud shadows
 data <-  raster_cube(col, cube, mask = mask)
 ```
 
-## Python
-
-```{python}
-data = odc.stac.load(
-    items,
-    crs="EPSG:4326",
-    bands=["nir08", "red"],
-    resolution=0.0001,
-    bbox=box
-)
-
-```
 
 :::
 
@@ -162,21 +122,6 @@ ndvi <- data |>
 ndvi_stars <- st_as_stars(ndvi)
 ```
 
-## Python
-
-```{python}
-red = data.red
-nir = data.nir08
-
-ndvi = (((nir - red) / (red + nir)).
-        resample(time="MS").
-        median("time", keep_attrs=True).
-        compute()
-)
-
-# mask out bad pixels
-ndvi = ndvi.where(ndvi <= 1)
-```
 
 :::
 
@@ -194,17 +139,6 @@ fill <- tm_scale_continuous(values = "Greens")
 
 tm_shape(ndvi_stars) + tm_raster(col.scale = mako)
 ```
-
-## Python
-
-```{python}
-import matplotlib as plt
-cmap = plt.colormaps.get_cmap('viridis')  # viridis is the default colormap for imshow
-cmap.set_bad(color='black')
-
-ndvi.plot.imshow(row="time", cmap=cmap, add_colorbar=False, size=5)
-```
-
 
 
 
@@ -233,14 +167,6 @@ sf$NDVI <- poly$NDVI
 ```
 
 
-## Python
-
-```{python}
-ndvi.rio.to_raster(raster_path="ndvi.tif", driver="COG")
-sf_url = "/vsicurl/https://dsl.richmond.edu/panorama/redlining/static/citiesData/CASanFrancisco1937/geojson.json"
-mean_ndvi = zonal_stats(sf_url, "ndvi.tif", stats="mean")
-
-```
 
 
 :::
@@ -261,13 +187,6 @@ tm_shape(ndvi_stars) + tm_raster(col.scale = mako) +
   tm_legend_hide()
 ```
 
-## Python
-
-```{python}
-sf = gpd.read_file(sf_url)
-sf["ndvi"] = [x["mean"] for x in mean_ndvi ]
-sf.plot(column="ndvi", legend=True)
-```
 
 :::
 
@@ -287,19 +206,7 @@ sf |>
   knitr::kable()
 ```
 
-## Python
 
-```{python}
-import geopolars as gpl
-import polars as pl
-
-(gpl.
-  from_geopandas(sf).
-  group_by("grade").
-  agg(pl.col("ndvi").mean()).
-  sort("grade")
-)
-```
 
 :::
 
