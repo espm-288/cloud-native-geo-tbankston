@@ -1,0 +1,60 @@
+---
+title: "example1"
+author: TB
+---
+
+```{r}
+library(rstac)
+library(gdalcubes)
+library(stars)
+library(tmap)
+library(dplyr)
+```
+
+```{r}
+box <- c(xmin=-122.51, ymin=37.71, xmax=-122.36, ymax=37.81) 
+start_date <- "2022-06-01"
+end_date <- "2022-08-01"
+items <-
+  stac("https://earth-search.aws.element84.com/v0/") |>
+  stac_search(collections = "sentinel-s2-l2a-cogs",
+              bbox = box,
+              datetime = paste(start_date, end_date, sep="/"),
+              limit = 100) |>
+  ext_query("eo:cloud_cover" < 20) |>
+  post_request()
+```
+
+
+```{r}
+col <- stac_image_collection(items$features, asset_names = c("B08", "B04", "SCL"))
+
+cube <- cube_view(srs ="EPSG:4326",
+                  extent = list(t0 = start_date, t1 = end_date,
+                                left = box[1], right = box[3],
+                                top = box[4], bottom = box[2]),
+                  dx = 0.0001, dy = 0.0001, dt = "P1D",
+                  aggregation = "median", resampling = "average")
+
+mask <- image_mask("SCL", values=c(3, 8, 9)) # mask clouds and cloud shadows
+
+data <-  raster_cube(col, cube, mask = mask)
+```
+```{r}
+ndvi <- data |>
+  select_bands(c("B04", "B08")) |>
+  apply_pixel("(B08-B04)/(B08+B04)", "NDVI") |>
+  reduce_time(c("mean(NDVI)"))
+
+ndvi_stars <- st_as_stars(ndvi)
+
+```
+
+```{r}
+mako <- tm_scale_continuous(values = viridisLite::mako(30))
+fill <- tm_scale_continuous(values = "Greens")
+
+tm_shape(ndvi_stars) + tm_raster(col.scale = mako)
+```
+
+
