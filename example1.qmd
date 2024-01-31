@@ -56,5 +56,27 @@ fill <- tm_scale_continuous(values = "Greens")
 
 tm_shape(ndvi_stars) + tm_raster(col.scale = mako)
 ```
+#zonal stats
+```{r}
+sf <- st_read("/vsicurl/https://dsl.richmond.edu/panorama/redlining/static/citiesData/CASanFrancisco1937/geojson.json") |>
+  st_make_valid() |> select(-label_coords)
+poly <- ndvi |> extract_geom(sf, FUN = mean, reduce_time = TRUE)
+sf$NDVI <- poly$NDVI
+```
+```{r}
+tm_shape(ndvi_stars) + tm_raster(col.scale = mako) +
+  tm_shape(sf) + tm_polygons('NDVI', fill.scale = fill) +
+  tm_shape(sf) + tm_text("grade", col="darkblue", size=0.6) +
+  tm_legend_hide()
+```
+
+```{r}
+sf |> 
+  as_tibble() |>
+  group_by(grade) |> 
+  summarise(ndvi = mean(NDVI), 
+            sd = sd(NDVI)) |>
+  knitr::kable()
+```
 
 
