@@ -1,4 +1,17 @@
 project:
   type: website
   output-dir: docs
- 
+  
+execute:
+  freeze: auto 
+  
+  
+ website:
+  navbar:
+    background: primary
+    search: true
+    left:
+      - text: "Home"
+        file: index.qmd
+        text: "About"
+        file: about.me.qmd
