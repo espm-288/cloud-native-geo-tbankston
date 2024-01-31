@@ -1,6 +1,6 @@
 ---
 title: "example1"
-author: TB
+author: Taylar Bankston
 ---
 
 ```{r}
