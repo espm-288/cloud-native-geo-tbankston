@@ -25,7 +25,7 @@ sf_redlines <- redlines%>%
 
 ```{r}
 tmap_mode("view") 
-tm_shape(sf_redlines) +tm_polygons("grade") 
+tm_shape(sf_redlines) + tm_polygons("grade") 
 
 ```
 
@@ -47,6 +47,7 @@ items <-
   ext_query("eo:cloud_cover" < 20) |>
   post_request()
 ```
+
 
 ```{r}
 col <- stac_image_collection(items$features, asset_names = c("B08", "B04", "SCL"))
