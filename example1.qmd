@@ -20,7 +20,7 @@ redlines <- st_read(url)%>%
   filter(st_is_valid(geom))
 
 sf_redlines <- redlines%>%
-  filter(city == "San Fransisco")
+  filter(city== "San Francisco")
 ```
 
 ```{r}
