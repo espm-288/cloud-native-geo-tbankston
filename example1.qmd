@@ -9,22 +9,44 @@ library(gdalcubes)
 library(stars)
 library(tmap)
 library(dplyr)
+library(leaflet)
 ```
 
 ```{r}
+library(stars)
+url <- "/vsicurl/https://dsl.richmond.edu/panorama/redlining/static/mappinginequality.gpkg"
+redlines <- st_read(url)%>% 
+  sf::st_make_valid() %>%
+  filter(st_is_valid(geom))
+
+sf_redlines <- redlines%>%
+  filter(city == "San Fransisco")
+```
+
+```{r}
+tmap_mode("view") 
+tm_shape(sf_redlines) +tm_polygons("grade") 
+
+```
+
+```{r}
+box <- c(st_bbox(sf_redlines))
+
+#box 2 <- st_bbox(box)
+#st_crs(box 2) use this line of coce (st_crs) to show coordinate reference system 
+
 box <- c(xmin=-122.51, ymin=37.71, xmax=-122.36, ymax=37.81) 
 start_date <- "2022-06-01"
-end_date <- "2022-08-01"
+end_date <- "2022-08-31"
 items <-
   stac("https://earth-search.aws.element84.com/v0/") |>
   stac_search(collections = "sentinel-s2-l2a-cogs",
-              bbox = box,
+              bbox = c(box),
               datetime = paste(start_date, end_date, sep="/"),
               limit = 100) |>
   ext_query("eo:cloud_cover" < 20) |>
   post_request()
 ```
-
 
 ```{r}
 col <- stac_image_collection(items$features, asset_names = c("B08", "B04", "SCL"))
@@ -40,6 +62,7 @@ mask <- image_mask("SCL", values=c(3, 8, 9)) # mask clouds and cloud shadows
 
 data <-  raster_cube(col, cube, mask = mask)
 ```
+
 ```{r}
 ndvi <- data |>
   select_bands(c("B04", "B08")) |>
@@ -54,15 +77,20 @@ ndvi_stars <- st_as_stars(ndvi)
 mako <- tm_scale_continuous(values = viridisLite::mako(30))
 fill <- tm_scale_continuous(values = "Greens")
 
-tm_shape(ndvi_stars) + tm_raster(col.scale = mako)
+tm_shape(ndvi_stars) + tm_raster(col.scale = mako) + 
+  tm_shape(sf_redlines) + tm_borders("grade", lwd=2)
+
 ```
+
 #zonal stats
+
 ```{r}
 sf <- st_read("/vsicurl/https://dsl.richmond.edu/panorama/redlining/static/citiesData/CASanFrancisco1937/geojson.json") |>
   st_make_valid() |> select(-label_coords)
 poly <- ndvi |> extract_geom(sf, FUN = mean, reduce_time = TRUE)
 sf$NDVI <- poly$NDVI
 ```
+
 ```{r}
 tm_shape(ndvi_stars) + tm_raster(col.scale = mako) +
   tm_shape(sf) + tm_polygons('NDVI', fill.scale = fill) +
@@ -78,5 +106,3 @@ sf |>
             sd = sd(NDVI)) |>
   knitr::kable()
 ```
-
-
