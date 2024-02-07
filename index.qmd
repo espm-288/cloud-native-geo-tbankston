@@ -3,3 +3,23 @@ title: "ESPM-288"
 format: html
 ---
 
+project:
+  type: website
+  render:
+  - "*.qmd"
+  - "*.ipynb"
+  - "README.md"
+
+#execute:
+#  freeze: auto
+
+website:
+  navbar:
+    background: primary
+    search: true
+    left:
+      - text: "Home"
+        file: README.md 
+
+  sidebar:
+    contents: notebook       
