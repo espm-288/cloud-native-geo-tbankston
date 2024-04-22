@@ -5,16 +5,23 @@ project:
   - "*.ipynb"
   - "README.md"
 
-#execute:
-#  freeze: auto
+execute:
+  freeze: auto
 
 website:
   navbar:
-    background: primary
+    tools:
+      - icon: github
+        menu:
+          - text: Source Code
+            url:  https://github.com/espm-288/cloud-native-geo-cboettig
+          - text: Report a Bug
+            url:  ttps://github.com/espm-288/cloud-native-geo-cboettig/issues
+    background: black
     search: true
     left:
       - text: "Home"
         file: README.md 
 
   sidebar:
-    contents: notebook
+    contents: Burn Severity Pre and Post Mosquito Fire 2022
