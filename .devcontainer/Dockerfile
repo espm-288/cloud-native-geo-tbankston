@@ -15,6 +15,7 @@ RUN bash install_dev_osgeo.sh && rm install_dev_osgeo.sh
 
 RUN chown -R rstudio:rstudio /opt/venv
 
+
 USER rstudio
 WORKDIR /home/rstudio
 RUN usermod -s /bin/bash rstudio

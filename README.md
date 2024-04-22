@@ -4,6 +4,7 @@ This is the development repository of educational training materials we are buil
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/boettiger-lab/nasa-topst-env-justice) [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/espm-157/nasa-topst-env-justice?quickstart=1)
 
+
 Click one of the buttons above to try out this repository in a cloud instance. This instance provides both VSCode or RStudio environments with most necessary packages already installed. See [Computing Environments](https://boettiger-lab.github.io/nasa-topst-env-justice/contents/computing-environment.html) for more details.
 
 Quarto source documents can be found in the [`contents`](contents) directory, and include both R and Python versions. See the [project homepage](https://boettiger-lab.github.io/nasa-topst-env-justice) for details.
