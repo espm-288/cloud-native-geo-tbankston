@@ -1,0 +1,27 @@
+project:
+  type: website
+  render:
+  - "*.qmd"
+  - "*.ipynb"
+  - "README.md"
+
+execute:
+  freeze: auto
+
+website:
+  navbar:
+    tools:
+      - icon: github
+        menu:
+          - text: Source Code
+            url:  https://espm-288.github.io/cloud-native-geo-tbankston/
+          - text: Report a Bug
+            url:  https://espm-288.github.io/cloud-native-geo-tbankston/issues
+    background: black
+    search: true
+    left:
+      - text: "Home"
+        file: README.md 
+
+  sidebar:
+    contents: tutorials     

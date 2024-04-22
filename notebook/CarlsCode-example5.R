@@ -67,3 +67,11 @@ ca_fee <- pad |>
   summarise(total = sum(SHAPE_Area)) |> head(1000) |> collect()
 
 ```
+
+```{r}
+before_fire_tifs <- "/vsicurl/https://huggingface.co/spaces/cboettig/shiny-app/resolve/main/before_fire/cube_d36238205702022-05-25.tif"
+after_fire_tifs <- "/vsicurl/https://huggingface.co/spaces/cboettig/shiny-app/resolve/main/after_fire/cube_d36482e5462022-05-30.tif"
+before_fire_nbr <- read_stars(before_fire_tifs)
+after_fire_nbr <- read_stars(after_fire_tifs)
+dnbr <- before_fire_nbr - after_fire_nbr
+```

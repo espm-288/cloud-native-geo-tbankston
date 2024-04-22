@@ -1,0 +1,53 @@
+---
+title: "Final Project- Blodgett"
+author: "Taylar Bankston"
+format: html
+editor: visual
+---
+
+```{r setup, message=FALSE}
+library(sf)
+library(stars)
+library(tidyverse)
+library(tmap)
+library(rstac)
+library(gdalcubes)
+library(leaflet.extras2)
+library(terra)
+```
+
+```{r}
+url <- "https://34c031f8-c9fd-4018-8c5a-4159cdff6b0d-cdn-endpoint.azureedge.net/-/media/calfire-website/what-we-do/fire-resource-assessment-program---frap/gis-data/april-2023/fire221gdb.zip?rev=9e3e1e5e61e242d5b2994d666d72a91a&hash=F424990CD64BB7C4CF01C6CE211C0A59"
+download.file(url, "fire221.gdb.zip",  mode="wb")
+
+unzip("fire221.gdb.zip")
+```
+
+```{r}
+fire_polys <- 
+  read_sf("fire22_1.gdb", layer = "firep22_1") |> 
+  filter(st_is_valid(Shape))
+```
+
+```{r}
+Blodgett <- 
+  read_sf("/vsicurl/https://huggingface.co/datasets/cboettig/biodiversity/resolve/main/data/NPS.gdb") |> 
+  filter(UNIT_NAME == "Joshua Tree National Park") |> 
+  st_transform(st_crs(fire_polys))
+
+```
+
+```{r}
+    Map <- leaflet() |> 
+      addMapPane("right", zIndex = 0) |> 
+      addMapPane("left",  zIndex = 0) |>
+      addTiles(group = "base", layerId = "baseid1", options = pathOptions(pane = "right")) |> 
+      addTiles(group = "base", layerId = "baseid2", options = pathOptions(pane = "left")) |> 
+      addRasterImage(x = rast(after_fire_stars), options = leafletOptions(pane = "right"), group = "r1") |> 
+      addRasterImage(x = rast(before_fire_stars), options = leafletOptions(pane = "left"), group = "r2") |> 
+      addLayersControl(overlayGroups = c("r1", "r2")) |>  
+      addSidebyside(layerId = "sidecontrols",
+                    rightId = "baseid1",
+                    leftId  = "baseid2")
+    
+```
