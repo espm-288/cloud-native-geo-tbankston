@@ -14,9 +14,9 @@ website:
       - icon: github
         menu:
           - text: Source Code
-            url:  https://github.com/espm-288/cloud-native-geo-cboettig
+            url:  https://github.com/espm-288/cloud-native-tbankston
           - text: Report a Bug
-            url:  ttps://github.com/espm-288/cloud-native-geo-cboettig/issues
+            url:  ttps://github.com/espm-288/cloud-native-geo-tbankston/issues
     background: black
     search: true
     left:
