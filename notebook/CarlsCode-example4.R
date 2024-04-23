@@ -19,7 +19,6 @@ url <- "https://34c031f8-c9fd-4018-8c5a-4159cdff6b0d-cdn-endpoint.azureedge.net/
 download.file(url, "fire221.gdb.zip",  mode="wb")
 
 
-
 unzip("fire221.gdb.zip")
 ```
 
@@ -128,6 +127,7 @@ before_fire |> plot()
 after_fire |> plot()
 
 ```
+
 ```{r}
 after_fire_stars <- after_fire |> st_as_stars()
 before_fire_stars <- before_fire |> st_as_stars()
@@ -165,8 +165,6 @@ Map <- leaflet() |>
   addSidebyside(layerId = "sidecontrols",
                 rightId = "baseid1",
                 leftId  = "baseid2")
-
-
 
 Map
 
