@@ -1,8 +1,8 @@
 ---
   title: "5: Fire Severity using Normalized Burn Index"
 ---
-  
-  ```{r setup, message=FALSE}
+
+```{r setup, message=FALSE}
 library(sf)
 library(stars)
 library(tidyverse)
@@ -10,8 +10,6 @@ library(tmap)
 library(rstac)
 library(gdalcubes)
 ```
-
-
 
 ```{r}
 
@@ -40,28 +38,23 @@ fire_is_in_jtree <- st_intersects(fire_polys, jtree, sparse=FALSE)
 fire_jtree <- fire_polys |> filter(fire_is_in_jtree)
 ```
 
-
-
 ```{r}
 tmap_mode("view")
 tm_shape(jtree) + tm_polygons() + 
   tm_shape(fire_jtree) + tm_polygons("YEAR_")
 ```
 
-Because burned vegetation presents a very different spectral pattern to normal vegetation, burn intensity can be measured by comparing the spectra in different bands.  The greatest contrast between burned and health vegetation can be seen in the NIR and SWIR bands, as seen in this typical spectral response curve:
-  
-  
-  ![](nbr.png)
+Because burned vegetation presents a very different spectral pattern to normal vegetation, burn intensity can be measured by comparing the spectra in different bands. The greatest contrast between burned and health vegetation can be seen in the NIR and SWIR bands, as seen in this typical spectral response curve:
+
+![](nbr.png)
 
 The normalized burn ratio (NBR) is defined as the ratio:
-  
-  $$ NBR = \frac{NIR - SWIR}{NIR + SWIR}$$
-  
-  
-  ## Landsat example
-  
-  
-  ```{r}
+
+$$ NBR = \frac{NIR - SWIR}{NIR + SWIR}$$
+
+\## Landsat example
+
+```{r}
 
 
 ```
@@ -78,8 +71,6 @@ box <- big_fire |> st_transform(4326) |> st_bbox()
 alarm_date <- big_fire$ALARM_DATE
 ```
 
-
-
 ```{r}
 start_date <- as.character( alarm_date - days(5) )
 end_date <- as.character( alarm_date + days(5) )
@@ -94,8 +85,6 @@ items <-
 
 ```
 
-
-
 ```{r}
 col <- stac_image_collection(items$features, asset_names = c("B08", "B12", "SCL"))
 
@@ -108,7 +97,6 @@ cube <- cube_view(srs ="EPSG:4326",
 mask <- image_mask("SCL", values=c(3, 8, 9)) # mask clouds and cloud shadows
 data <-  raster_cube(col, cube, mask = mask)
 ```
-
 
 ```{r}
 
@@ -144,11 +132,9 @@ tm_shape(dnbr) + tm_raster() +
   tm_shape(big_fire) + tm_borders() 
 ```
 
-
-
 ## with slider
 
-We can use leaflet to create a slider bar.  This is more verbose than `tmap` but very powerful.  (Note that this example requires the GitHub)
+We can use leaflet to create a slider bar. This is more verbose than `tmap` but very powerful. (Note that this example requires the GitHub)
 
 ```{r}
 library(leaflet.extras2)

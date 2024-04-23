@@ -108,3 +108,23 @@ tm_shape(Tahoe) + tm_polygons() +
 #now do this just with blodgett boundary, and mosquito fire 
 
 ```
+```{r}
+#El Dorado County Fires
+
+fire_polys <- 
+  read_sf("fire22_1.gdb", layer = "firep22_1") |> 
+  filter(st_is_valid(Shape))
+
+Tahoe <- 
+  read_sf("S_USA.ProclaimedForest.gdb.zip") |> 
+  filter(FORESTNAME == "Tahoe National Forest") |>
+  st_transform(st_crs(fire_polys))
+ 
+fire_is_in_tahoe <- st_intersects(fire_polys, Tahoe, sparse=FALSE)
+fire_tahoe <- fire_polys |> filter(fire_is_in_tahoe)
+
+tmap_mode("view")
+tm_shape(Tahoe) + tm_polygons() + 
+  tm_shape(fire_tahoe) + tm_polygons("YEAR_")
+```
+
