@@ -111,6 +111,7 @@ data <-  raster_cube(col, cube, mask = mask)
 
 
 ```{r}
+
 nbr <- data |> 
   apply_pixel("(B08-B12)/(B08+B12)", "NBR") 
 

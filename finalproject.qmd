@@ -28,7 +28,6 @@ fire_polys <-
   filter(st_is_valid(Shape))
 ```
 
-
 ```{r}
 sequoia <- 
   read_sf("/vsicurl/https://huggingface.co/datasets/cboettig/biodiversity/resolve/main/data/NPS.gdb") |> 
@@ -39,13 +38,11 @@ fire_is_in_sequoia <- st_intersects(fire_polys, sequoia, sparse=FALSE)
 fire_sequoia <- fire_polys |> filter(fire_is_in_sequoia)
 ```
 
-
 ```{r}
 tmap_mode("view")
 tm_shape(sequoia) + tm_polygons() + 
   tm_shape(fire_sequoia) + tm_polygons("YEAR_")
 ```
-
 
 ```{r}
 big_fire <- fire_sequoia |> 
@@ -66,8 +63,8 @@ items <-
               bbox = c(box))  |>
   post_request() |>
   items_sign(sign_planetary_computer())
-```
 
+```
 
 ```{r}
 
@@ -81,20 +78,16 @@ cube <- cube_view(srs ="EPSG:4326",
 mask <- image_mask("SCL", values=c(3, 8, 9)) # mask clouds and cloud shadows
 data <-  raster_cube(col, cube, mask = mask)
 
-```
-
-```{r}
+#errors begin
 nbr <- data |> 
   apply_pixel("(B08-B12)/(B08+B12)", "NBR") 
-  
-  #Error- slice times, datetime out of data cube bounds 
-
-before_fire <- nbr |> slice_time("2022-07-24") 
-after_fire <- nbr  |> slice_time("2022-08-03")
+#dates not working- datetime out of cube bounds?? 
+before_fire <- nbr |> slice_time("2022-08-03") 
+after_fire <- nbr  |> slice_time("2022-09-15")
 ```
 
 ```{r}
-#finalproject-pull tahoe NF boundary layer (find boundary for Blodgett FRS?)
+#finalproject-pull tahoe NF boundary layer (find boundary for Blodgett FRS? )
 
 fire_polys <- 
   read_sf("fire22_1.gdb", layer = "firep22_1") |> 
@@ -112,23 +105,6 @@ tmap_mode("view")
 tm_shape(Tahoe) + tm_polygons() + 
   tm_shape(fire_tahoe) + tm_polygons("YEAR_")
 
+#now do this just with blodgett boundary, and mosquito fire 
 
-
-```
-
-
-
-```{r}
-    Map <- leaflet() |> 
-      addMapPane("right", zIndex = 0) |> 
-      addMapPane("left",  zIndex = 0) |>
-      addTiles(group = "base", layerId = "baseid1", options = pathOptions(pane = "right")) |> 
-      addTiles(group = "base", layerId = "baseid2", options = pathOptions(pane = "left")) |> 
-      addRasterImage(x = rast(after_fire_stars), options = leafletOptions(pane = "right"), group = "r1") |> 
-      addRasterImage(x = rast(before_fire_stars), options = leafletOptions(pane = "left"), group = "r2") |> 
-      addLayersControl(overlayGroups = c("r1", "r2")) |>  
-      addSidebyside(layerId = "sidecontrols",
-                    rightId = "baseid1",
-                    leftId  = "baseid2")
-    
 ```
