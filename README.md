@@ -1,2 +1,2 @@
 # Welcome
-This is the testing website for TBankston's ESPM-288 final project
+This is the testing website for T.Bankston's ESPM-288 final project
