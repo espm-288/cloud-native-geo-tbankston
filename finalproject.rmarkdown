@@ -1,0 +1,237 @@
+---
+title: "Final Project- Tahoe National Forest"
+author: "Taylar Bankston"
+format: html
+editor: visual
+---
+
+```{r setup, message=FALSE}
+library(sf)
+library(dplyr)
+library(stars)
+library(tidyverse)
+library(tmap)
+library(rstac)
+library(gdalcubes)
+library(leaflet.extras2)
+library(terra)
+```
+
+
+#how to add and use .gdb in huggingface
+#how to use shaprefiles
+
+
+```{r}
+url <- "https://34c031f8-c9fd-4018-8c5a-4159cdff6b0d-cdn-endpoint.azureedge.net/-/media/calfire-website/what-we-do/fire-resource-assessment-program---frap/gis-data/april-2023/fire221gdb.zip?rev=9e3e1e5e61e242d5b2994d666d72a91a&hash=F424990CD64BB7C4CF01C6CE211C0A59"
+download.file(url, "fire221.gdb.zip",  mode="wb")
+
+
+unzip("fire221.gdb.zip")
+
+fire_polys <- 
+  read_sf("fire22_1.gdb", layer = "firep22_1") |> 
+  filter(st_is_valid(Shape))
+```
+
+```{r}
+sequoia <- 
+  read_sf("/vsicurl/https://huggingface.co/datasets/cboettig/biodiversity/resolve/main/data/NPS.gdb") |> 
+  filter(UNIT_NAME == "Sequoia National Park") |> 
+  st_transform(st_crs(fire_polys))
+
+fire_is_in_sequoia <- st_intersects(fire_polys, sequoia, sparse=FALSE)
+fire_sequoia <- fire_polys |> filter(fire_is_in_sequoia)
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(sequoia) + tm_polygons() + 
+  tm_shape(fire_sequoia) + tm_polygons("YEAR_")
+```
+
+```{r}
+big_fire <- fire_sequoia |> 
+  filter(YEAR_ > "2020") |> 
+  filter(Shape_Area == max(Shape_Area)) 
+
+
+box <- big_fire |> st_transform(4326) |> st_bbox() 
+alarm_date <- big_fire$ALARM_DATE
+
+#can you explain alarm dates??? how do these work 
+start_date <- as.character( alarm_date - days(5) )
+end_date <- as.character( alarm_date + days(5) )
+
+items <-  
+  stac("https://planetarycomputer.microsoft.com/api/stac/v1")  |>
+  stac_search(collections = "sentinel-2-l2a",
+              datetime = paste(start_date, end_date, sep="/"),
+              bbox = c(box))  |>
+  post_request() |>
+  items_sign(sign_planetary_computer())
+
+col <- stac_image_collection(items$features, asset_names = c("B08", "B12", "SCL"))
+
+cube <- cube_view(srs ="EPSG:4326",
+                  extent = list(t0 = start_date, t1 = end_date,
+                                left = box[1], right = box[3],
+                                top = box[4], bottom = box[2]),
+                  dx = 0.0001, dy = 0.0001, dt = "P1D")
+
+mask <- image_mask("SCL", values=c(3, 8, 9)) # mask clouds and cloud shadows
+data <-  raster_cube(col, cube, mask = mask)
+
+nbr <- data |> 
+  apply_pixel("(B08-B12)/(B08+B12)", "NBR") 
+
+
+before_fire <- nbr |> slice_time("2021-09-05") 
+after_fire <- nbr  |> slice_time("2021-09-15")
+```
+
+```{r}
+#error 'from must be finite number
+before_fire |> plot()
+after_fire |> plot()
+
+after_fire_stars <- after_fire |> st_as_stars()
+before_fire_stars <- before_fire |> st_as_stars()
+
+
+st_dimensions(before_fire_stars) <- st_dimensions(after_fire_stars)
+
+dnbr <- before_fire_stars - after_fire_stars
+
+tmap_mode("view")
+
+tm_shape(dnbr) + tm_raster() +
+tm_shape(big_fire) + tm_borders() 
+```
+
+```{r}
+#finalproject-pull tahoe NF boundary layer (find boundary for Blodgett FRS? )
+
+fire_polys <- 
+  read_sf("fire22_1.gdb", layer = "firep22_1") |> 
+  filter(st_is_valid(Shape))
+
+Tahoe <- 
+  read_sf("S_USA.ProclaimedForest.gdb.zip") |> 
+  filter(FORESTNAME == "Tahoe National Forest") |>
+  st_transform(st_crs(fire_polys))
+ 
+fire_is_in_tahoe <- st_intersects(fire_polys, Tahoe, sparse=FALSE)
+fire_tahoe <- fire_polys |> filter(fire_is_in_tahoe)
+
+tmap_mode("view")
+tm_shape(Tahoe) + tm_polygons() + 
+  tm_shape(fire_tahoe) + tm_polygons("YEAR_")
+```
+
+```{r}
+big_fire2 <- fire_tahoe |> 
+  filter(YEAR_ > "2020") |> 
+  filter(Shape_Area == max(Shape_Area)) 
+
+
+box <- big_fire2 |> st_transform(4326) |> st_bbox() 
+alarm_date2 <- big_fire2$ALARM_DATE
+
+#can you explain alarm dates??? how do these work 
+start_date2 <- as.character( alarm_date2 - days(5) )
+end_date2 <- as.character( alarm_date2 + days(5) )
+
+items2 <-  
+  stac("https://planetarycomputer.microsoft.com/api/stac/v1")  |>
+  stac_search(collections = "sentinel-2-l2a",
+              datetime = paste(start_date2, end_date2, sep="/"),
+              bbox = c(box))  |>
+  post_request() |>
+  items_sign(sign_planetary_computer())
+
+col2 <- stac_image_collection(items$features, asset_names = c("B08", "B12", "SCL"))
+
+cube2 <- cube_view(srs ="EPSG:4326",
+                  extent = list(t0 = start_date, t1 = end_date,
+                                left = box[1], right = box[3],
+                                top = box[4], bottom = box[2]),
+                  dx = 0.0001, dy = 0.0001, dt = "P1D")
+
+mask2 <- image_mask("SCL", values=c(3, 8, 9)) # mask clouds and cloud shadows
+data2 <-  raster_cube(col, cube, mask = mask)
+
+nbr2 <- data2 |> 
+  apply_pixel("(B08-B12)/(B08+B12)", "NBR") 
+
+#error datetime
+before_fire2 <- nbr2 |> slice_time("2022-05-25") 
+after_fire2 <- nbr2  |> slice_time("2022-05-25")
+
+#error 'from must be finite number
+before_fire |> plot()
+after_fire |> plot()
+
+```
+
+```{r}
+#now do this just with blodgett boundary, and mosquito fire 
+
+#El Dorado County Fires
+#use different gdb that has 2023 fires, mosquito missing from previous gdb
+
+fire_polys <- 
+  read_sf("fire22_1.gdb", layer = "firep22_1") |> 
+  filter(st_is_valid(Shape))
+
+eldorado <- 
+  read_sf("counties.gdb") |> 
+  filter(COUNTY_NAME == "El Dorado") |>
+  st_transform(st_crs(fire_polys))
+ 
+fire_is_in_eldorado <- st_intersects(fire_polys, eldorado, sparse=FALSE)
+fire_eldorado <- fire_polys |> filter(fire_is_in_eldorado)
+
+tmap_mode("view")
+tm_shape(eldorado) + tm_polygons() + 
+  tm_shape(fire_eldorado) + tm_polygons("YEAR_")
+```
+
+```{r}
+#how do/ can i use a shapefile as opposed to a gdb? is this possible? 
+#want to make this map an interactive map of blodgett that shows fire severity of mosquito fire
+Blodgettforest <-"" |> 
+  st_transform(st_crs(fire_polys))
+ 
+fire_is_in_blodgett <- st_intersects(fire_polys, Blodgett, sparse=FALSE)
+fire_blodgett <- fire_polys |> filter(fire_is_in_blodgett)
+
+tmap_mode("view")
+tm_shape(Blodgett) + tm_polygons() + 
+  tm_shape(fire_blodgett) + tm_polygons("YEAR_")
+```
+
+```{r} 
+#once datetime and shapefile boundary errors are solved, Then add slider bar 
+#Carls code for interactive slider bar 
+#hugging face space "https://huggingface.co/spaces/taylarzb/FinalProject?logs=container"
+#hugging face fire perimeters "https://huggingface.co/datasets/taylarzb/fireperimeters"
+library(leaflet.extras2)
+library(terra)
+
+
+Map <- leaflet() |> 
+  addMapPane("right", zIndex = 0) |> 
+  addMapPane("left",  zIndex = 0) |>
+  addTiles(group = "base", layerId = "baseid1", options = pathOptions(pane = "right")) |> 
+  addTiles(group = "base", layerId = "baseid2", options = pathOptions(pane = "left")) |> 
+  addRasterImage(x = rast(after_fire_stars), options = leafletOptions(pane = "right"), group = "r1") |> 
+  addRasterImage(x = rast(before_fire_stars), options = leafletOptions(pane = "left"), group = "r2") |> 
+  addLayersControl(overlayGroups = c("r1", "r2")) |>  
+  addSidebyside(layerId = "sidecontrols",
+                rightId = "baseid1",
+                leftId  = "baseid2")
+
+Map
+```
+
